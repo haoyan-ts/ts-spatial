@@ -8,6 +8,7 @@ conversion between various formats (matrices, quaternions, etc.).
 Main Components:
     - Transform3D: Class for representing and manipulating 3D transformations
     - rigid_transform: Function for computing optimal rigid transformations
+    - Calibration utilities for tracker-to-world frame registration
     - Custom exceptions for transformation errors
 
 Example:
@@ -35,6 +36,19 @@ from .transform import (
     RankDeficiencyError,
 )
 
+from .calibration import (
+    calibrate_world,
+    save_world_calibration,
+    load_world_calibration,
+    calibrate_world_interactive,
+    calibrate_world_iter,
+    # Backward compatibility aliases
+    calibrate_nova_tracker,
+    save_calibration,
+    load_calibration,
+    calibrate_nova_tracker_interactive,
+)
+
 __version__ = "0.1.0"
 __author__ = "Haoyan Li"
 
@@ -42,6 +56,17 @@ __all__ = [
     # Main classes and functions
     "Transform3D",
     "rigid_transform",
+    # Calibration functions
+    "calibrate_world",
+    "save_world_calibration",
+    "load_world_calibration",
+    "calibrate_world_interactive",
+    "calibrate_world_iter",
+    # Backward compatibility aliases
+    "calibrate_nova_tracker",
+    "save_calibration",
+    "load_calibration",
+    "calibrate_nova_tracker_interactive",
     # Exceptions
     "SrcDstSizeMismatchError",
     "InvalidPointDimError",
