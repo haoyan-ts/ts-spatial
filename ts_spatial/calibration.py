@@ -16,19 +16,17 @@ Date: November 19, 2025
 """
 
 import json
+from collections.abc import Generator
 from datetime import datetime
 from pathlib import Path
 from typing import (
     Any,
-    Callable,
-    Generator,
-    Optional,
     Protocol,
-    Tuple,
     runtime_checkable,
 )
 
 import numpy as np
+import numpy.typing as npt
 from loguru import logger
 
 from .transform import Transform3D, rigid_transform
@@ -60,14 +58,14 @@ class TrackerParserProtocol(Protocol):
 
     def parse_tracker_by_type(
         self, data: Any, tracker_type: str
-    ) -> Optional[TrackerDataProtocol]:
+    ) -> TrackerDataProtocol | None:
         """Parse tracker data by type."""
         ...
 
 
 def calibrate_world(
     origin: Transform3D, x_point: Transform3D, y_point: Transform3D
-) -> np.typing.NDArray:
+) -> npt.NDArray:
     """
     Calibrate world frame using 3-point rigid registration.
 
@@ -123,11 +121,11 @@ def calibrate_world(
 
 
 def save_world_calibration(
-    matrix: np.typing.NDArray,
+    matrix: npt.NDArray,
     output_dir: Path = Path("calibrations"),
-    reference_points: Optional[dict] = None,
-    measured_points: Optional[dict] = None,
-    error_mm: Optional[float] = None,
+    reference_points: dict | None = None,
+    measured_points: dict | None = None,
+    error_mm: float | None = None,
 ) -> Path:
     """
     Save world calibration matrix to JSON file.
@@ -173,7 +171,7 @@ def save_world_calibration(
     return filepath
 
 
-def load_world_calibration(calib_dir: Path = Path("calibrations")) -> np.typing.NDArray:
+def load_world_calibration(calib_dir: Path = Path("calibrations")) -> npt.NDArray:
     """
     Load world calibration matrix from JSON file.
 
@@ -196,7 +194,7 @@ def load_world_calibration(calib_dir: Path = Path("calibrations")) -> np.typing.
     filepath = calib_files[-1]
     logger.info(f"Loading world calibration: {filepath}")
 
-    with open(filepath, "r") as f:
+    with open(filepath) as f:
         data = json.load(f)
 
     matrix = np.array(data["world_to_tracker"])
@@ -207,7 +205,7 @@ def calibrate_world_interactive(
     subscriber: DataSubscriberProtocol,
     parser: TrackerParserProtocol,
     tracker_type: str = "left_hand",
-) -> Tuple[np.typing.NDArray, dict, dict]:
+) -> tuple[npt.NDArray, dict, dict]:
     """
     Interactive world frame calibration workflow.
 
@@ -292,9 +290,7 @@ def calibrate_world_iter(
     subscriber: DataSubscriberProtocol,
     parser: TrackerParserProtocol,
     tracker_type: str = "left_hand",
-) -> Generator[
-    Tuple[str, Optional[Transform3D]], None, Tuple[np.typing.NDArray, dict, dict]
-]:
+) -> Generator[tuple[str, Transform3D | None], None, tuple[npt.NDArray, dict, dict]]:
     """
     Iterator-based world frame calibration for TUI applications.
 
@@ -394,7 +390,7 @@ def calibrate_world_iter(
 
 def calibrate_nova_tracker(
     origin: Transform3D, x_point: Transform3D, y_point: Transform3D
-) -> np.typing.NDArray:
+) -> npt.NDArray:
     """
     Calibrate Nova tracker using 3-point rigid registration.
 
@@ -420,11 +416,11 @@ def calibrate_nova_tracker(
 
 
 def save_calibration(
-    matrix: np.typing.NDArray,
+    matrix: npt.NDArray,
     output_dir: Path = Path("calibrations"),
-    reference_points: Optional[dict] = None,
-    measured_points: Optional[dict] = None,
-    error_mm: Optional[float] = None,
+    reference_points: dict | None = None,
+    measured_points: dict | None = None,
+    error_mm: float | None = None,
 ) -> Path:
     """
     Save calibration matrix to JSON file (Nova naming convention).
@@ -481,7 +477,7 @@ def save_calibration(
     return filepath
 
 
-def load_calibration(calib_dir: Path = Path("calibrations")) -> np.typing.NDArray:
+def load_calibration(calib_dir: Path = Path("calibrations")) -> npt.NDArray:
     """
     Load calibration matrix from JSON file (Nova naming convention).
 
@@ -515,7 +511,7 @@ def load_calibration(calib_dir: Path = Path("calibrations")) -> np.typing.NDArra
     filepath = calib_files[-1]
     logger.info(f"Loading calibration: {filepath}")
 
-    with open(filepath, "r") as f:
+    with open(filepath) as f:
         data = json.load(f)
 
     matrix = np.array(data["world_to_tracker"])
@@ -526,7 +522,7 @@ def calibrate_nova_tracker_interactive(
     subscriber: DataSubscriberProtocol,
     parser: TrackerParserProtocol,
     tracker_type: str = "left_hand",
-) -> Tuple[np.typing.NDArray, dict, dict]:
+) -> tuple[npt.NDArray, dict, dict]:
     """
     Interactive calibration workflow (Nova naming convention).
 
